@@ -46,8 +46,8 @@ struct SensorData {
   float potassium;
   float ph;
   float ec;
-  float NPKMoisture;
-  float NPKHumidity;
+  // float NPKMoisture;
+  // float NPKHumidity;
   int soilMoisture;
   int soilMoisturePercent;
   double latitude;
@@ -94,7 +94,7 @@ void readGPS(SensorData &data) {
   if (newData && gps.location.isValid()) {
     data.latitude = gps.location.lat();
     data.longitude = gps.location.lng();
-    data.altitude = gps.altitude.meters();
+    data.altitude = gps.altitude.kilometers();
     data.satellites = gps.satellites.value();
     data.gpsValid = true;
     
@@ -162,8 +162,8 @@ void readNPKSensor(SensorData &data) {
     data.potassium = ((response[7] << 8) | response[8]) / 10.0;
     data.ph = ((response[9] << 8) | response[10]) / 100.0;
     data.ec = ((response[11] << 8) | response[12]) / 100.0;
-    data.NPKMoisture = ((response[13] << 8) | response[14]) / 10.0;
-    data.NPKHumidity = ((response[15] << 8) | response[16]) / 10.0;
+    // data.NPKMoisture = ((response[13] << 8) | response[14]) / 10.0;
+    // data.NPKHumidity = ((response[15] << 8) | response[16]) / 10.0;
   } else {
     Serial.println("Failed to read from NPK sensor!");
     data.nitrogen = -999;
@@ -171,8 +171,8 @@ void readNPKSensor(SensorData &data) {
     data.potassium = -999;
     data.ph = -999;
     data.ec = -999;
-    data.NPKMoisture = -999;
-    data.NPKHumidity = -999;
+    // data.NPKMoisture = -999;
+    // data.NPKHumidity = -999;
   }
 }
 
@@ -224,8 +224,8 @@ void displaySensorData(const SensorData &data) {
   Serial.println("\nSoil Conditions:");
   Serial.printf("  pH: %.2f\n", data.ph);
   Serial.printf("  EC: %.2f mS/cm\n", data.ec);
-  Serial.printf("  NPK Moisture: %.1f%%\n", data.NPKMoisture);
-  Serial.printf("  NPK Humidity: %.1f%%\n", data.NPKHumidity);
+  // Serial.printf("  NPK Moisture: %.1f%%\n", data.NPKMoisture);
+  // Serial.printf("  NPK Humidity: %.1f%%\n", data.NPKHumidity);
   Serial.printf("  Soil Moisture: %d (Raw: %d)\n", data.soilMoisturePercent, data.soilMoisture);
   
   // Soil moisture interpretation
