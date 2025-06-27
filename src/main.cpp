@@ -4,6 +4,12 @@
 #include <SoftwareSerial.h>
 #include <ArduinoJson.h>
 #include <TinyGPS++.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// Initialize a 20x4 LCD with I2C address 0x27
+LiquidCrystal_I2C lcd(0x27, 20, 4);
+
 // Smart Agricultural Node for ESP32
 // This code reads environmental and soil data using various sensors and sends it to a server
 // for monitoring and control purposes.
@@ -15,8 +21,8 @@
 DHT dht(DHT_PIN, DHT_TYPE);
 
 // NPK Sensor Configuration (RS485/UART)
-#define NPK_RX_PIN 22 //RO
-#define NPK_TX_PIN 23 //DI
+#define NPK_RX_PIN 32 //RO
+#define NPK_TX_PIN 33 //DI
 
 #define NPK_DE_PIN 25  // Direction control pin for RS485
 #define NPK_RE_PIN 26  // Receive Enable pin for RS485
@@ -240,6 +246,37 @@ void displaySensorData(const SensorData &data) {
   Serial.println("========================\n");
 }
 
+
+// Create a new function to display sensor data on the LCD
+void displayOnLCD(const SensorData &data) {
+  lcd.clear();
+
+  lcd.setCursor(0, 0);
+  lcd.print("T:");
+  lcd.print(data.temperature, 1);
+  lcd.print("C     H:");
+  lcd.print(data.humidity, 0);
+
+  lcd.setCursor(0, 1);
+  lcd.print("N:");
+  lcd.print(data.nitrogen, 0);
+  lcd.print("     EC:");
+  lcd.print(data.ec, 2);
+
+  lcd.setCursor(0, 2);
+  lcd.print("P:");
+  lcd.print(data.phosphorus, 0);
+  lcd.print("     pH:");
+  lcd.print(data.ph, 1);
+
+  lcd.setCursor(0, 3);
+  lcd.print("K:");
+  lcd.print(data.potassium, 0);
+  lcd.print("     SM:");
+  lcd.print(data.soilMoisturePercent);
+  lcd.print("%");
+}
+
 void sendDataToServer(const SensorData &data) {
   // Create JSON payload
   StaticJsonDocument<768> doc;
@@ -322,6 +359,10 @@ void publishMQTT(String data) {
 void setup() {
   Serial.begin(115200);
   
+
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
   // Initialize DHT sensor
   dht.begin();
   
@@ -368,10 +409,13 @@ void loop() {
   
   // Display sensor data
   displaySensorData(data);
+
+  // Display on LCD
+  displayOnLCD(data);
   
   // Send data to server/cloud (optional)
   sendDataToServer(data);
   
   // Wait before next reading
-  delay(3000); // 5 seconds
+  delay(3000); // 3 seconds
 }
